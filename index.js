@@ -4,6 +4,9 @@ const bodyParser = require('body-parser');
 const Joi = require('joi');
 const boom = require('boom');
 const cors = require('cors');
+const fs = require('fs');
+const marked = require('marked');
+const path = require('path');
 const { ObjectId } = require('mongodb');
 
 const app = express();
@@ -96,5 +99,11 @@ app.delete('/api/card/:id', (req, res) => {
   );
 });
 
+// Serve the README.md file on the root URL
+app.get('/', (req, res) => {
+  const readmePath = path.join(__dirname, 'README.md');
+  const readmeContent = fs.readFileSync(readmePath, 'utf8');
+  res.send(marked(readmeContent));
+});
 // Start the server
 app.listen(3000, () => console.log('Server listening on port 3000'));
