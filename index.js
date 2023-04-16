@@ -11,15 +11,19 @@ const { MongoClient } = require('mongodb');
 // Connection URL
 const mongodb_username = process.env.MONGODB_USERNAME;
 const mongodb_password = process.env.MONGODB_PASSWORD;
-const dbName = 'test';
+const mongodb_hostname =
+  process.env.MONGODB_HOSTNAME || 'cluster0.fpm5lhj.mongodb.net';
+const mongodb_database = process.env.MONGODB_DATABASE || 'test';
 
 const uri =
   'mongodb+srv://' +
   mongodb_username +
   ':' +
   mongodb_password +
-  '@cluster0.fpm5lhj.mongodb.net/' +
-  dbName +
+  '@' +
+  mongodb_hostname +
+  '/' +
+  mongodb_database +
   '';
 
 // Create a new MongoClient
@@ -35,7 +39,7 @@ async function connectToDatabase() {
   try {
     await client.connect();
     console.log('Connected to MongoDB Atlas');
-    db = client.db(dbName);
+    db = client.db(mongodb_database);
   } catch (err) {
     console.error('Error connecting to MongoDB:', err);
     process.exit(1);
@@ -46,68 +50,68 @@ connectToDatabase();
 
 app.use(express.json());
 
-app.get('/api/cards', (req, res) => {
-  db.collection('cards')
-    .find()
-    .toArray((err, result) => {
-      if (err) {
-        console.log(err);
-        return res.status(500).json(boom.internal());
-      }
-      res.json(result);
-    });
+app.get('/api/cards', async (req, res) => {
+  try {
+    const result = await db.collection('cards').find().toArray();
+    res.json(result);
+  } catch (err) {
+    console.log(err);
+    res.status(500).json(boom.internal());
+  }
 });
 
-app.post('/api/cards', (req, res) => {
-  const card = { name: req.body.name, description: req.body.description };
-  db.collection('cards').insertOne(card, (err, result) => {
-    if (err) {
-      console.log(err);
-      return res.status(500).json(boom.internal());
-    }
+app.post('/api/cards', async (req, res) => {
+  try {
+    const card = { name: req.body.name, description: req.body.description };
+    const result = await db.collection('cards').insertOne(card);
     console.log('Card created');
     res.send('Card created');
-  });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json(boom.internal());
+  }
 });
 
-app.put('/api/card/:id', (req, res) => {
+app.put('/api/card/:id', async (req, res) => {
   const card = { name: req.body.name, description: req.body.description };
-  db.collection('cards').updateOne(
-    { _id: new ObjectId(req.params.id) },
-    { $set: card },
-    (err, result) => {
-      if (err) {
-        console.log(err);
-        return res.status(500).json(boom.internal());
-      }
-      console.log('Card updated');
-      res.send('Card updated');
-    }
-  );
+  try {
+    const result = await db
+      .collection('cards')
+      .updateOne({ _id: new ObjectId(req.params.id) }, { $set: card });
+    console.log('Card updated');
+    res.send('Card updated');
+  } catch (err) {
+    console.log(err);
+    res.status(500).json(boom.internal());
+  }
 });
 
-app.delete('/api/card/:id', (req, res) => {
-  db.collection('cards').deleteOne(
-    { _id: new ObjectId(req.params.id) },
-    (err, result) => {
-      if (err) {
-        console.log(err);
-        return res.status(500).json(boom.internal());
-      }
-      console.log('Card deleted');
-      res.send('Card deleted');
-    }
-  );
+app.delete('/api/card/:id', async (req, res) => {
+  try {
+    const result = await db
+      .collection('cards')
+      .deleteOne({ _id: new ObjectId(req.params.id) });
+    console.log('Card deleted');
+    res.send('Card deleted');
+  } catch (err) {
+    console.log(err);
+    return res.status(500).json(boom.internal());
+  }
 });
 
 // Serve the README.md file on the root URL
-app.get('/', (req, res) => {
-  const readmePath = path.join(__dirname, 'README.md');
-  const readmeContent = fs.readFileSync(readmePath, 'utf8');
-  res.send(marked(readmeContent));
+app.get('/', async (req, res) => {
+  try {
+    const readmePath = path.join(__dirname, 'README.md');
+    const readmeContent = await fs.promises.readFile(readmePath, 'utf8');
+    res.send(marked(readmeContent));
+  } catch (err) {
+    console.log(err);
+    return res.status(500).json(boom.internal());
+  }
 });
 
-app.use((err, req, res, next) => {
+app.use(async (err, req, res, next) => {
   console.error(err.stack);
   res.status(500).json({ error: 'Internal Server Error' });
 });
