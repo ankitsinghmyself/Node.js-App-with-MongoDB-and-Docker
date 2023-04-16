@@ -23,7 +23,7 @@ To run the app locally, follow these steps:
 
 1. Make sure Docker is running on your machine.
 2. Navigate to the root directory of the app in a terminal or command prompt.
-3. Run `docker-compose up` to start the app in a Docker container.
+3. Run `docker-compose up --build` to start the app in a Docker container.
 4. Open a web browser and go to `http://localhost:3000` to access the app.
 
 ## API Routes
