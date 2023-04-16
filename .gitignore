@@ -1,4 +1,7 @@
 node_modules/
+    
+# Ignore files related to MongoDB
+*.log
+*.mongodb
+
 .env
-package-lock.json
-```
