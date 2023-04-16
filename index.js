@@ -8,12 +8,21 @@ const { ObjectId } = require('mongodb');
 
 const app = express();
 const { MongoClient } = require('mongodb');
-// Connection URL
-const uri =
-  'mongodb+srv://ankitsinghmyself:Mo%40maa622maa@cluster0.fpm5lhj.mongodb.net/test';
 
-// Database Name
+// Connection URL
+const mongodb_username = process.env.MONGODB_USERNAME;
+const mongodb_password = process.env.MONGODB_PASSWORD;
 const dbName = 'test';
+
+const uri =
+  'mongodb+srv://' +
+  mongodb_username +
+  ':' +
+  mongodb_password +
+  '@cluster0.fpm5lhj.mongodb.net/' +
+  dbName +
+  '';
+console.log(uri);
 
 // Create a new MongoClient
 const client = new MongoClient(uri, {

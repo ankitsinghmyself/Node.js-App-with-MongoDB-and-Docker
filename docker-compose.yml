@@ -16,6 +16,8 @@ services:
       - MONGO_URL=mongodb://mongo:27017/test
       - APP_URL=http://localhost:3000
       - API_KEY=123456789
+    env_file:
+      - .env
   mongo:
     image: mongo:latest
     ports:
