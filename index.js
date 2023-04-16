@@ -1,9 +1,5 @@
 const express = require('express');
-const mongoose = require('mongoose');
-const bodyParser = require('body-parser');
-const Joi = require('joi');
 const boom = require('boom');
-const cors = require('cors');
 const fs = require('fs');
 const marked = require('marked');
 const path = require('path');
@@ -45,9 +41,11 @@ async function connectToDatabase() {
     process.exit(1);
   }
 }
+
 connectToDatabase();
 
-app.use(bodyParser.json()); // Add JSON body parser middleware
+app.use(express.json());
+
 app.get('/api/cards', (req, res) => {
   db.collection('cards')
     .find()
@@ -59,6 +57,7 @@ app.get('/api/cards', (req, res) => {
       res.json(result);
     });
 });
+
 app.post('/api/cards', (req, res) => {
   const card = { name: req.body.name, description: req.body.description };
   db.collection('cards').insertOne(card, (err, result) => {
@@ -70,6 +69,7 @@ app.post('/api/cards', (req, res) => {
     res.send('Card created');
   });
 });
+
 app.put('/api/card/:id', (req, res) => {
   const card = { name: req.body.name, description: req.body.description };
   db.collection('cards').updateOne(
@@ -85,6 +85,7 @@ app.put('/api/card/:id', (req, res) => {
     }
   );
 });
+
 app.delete('/api/card/:id', (req, res) => {
   db.collection('cards').deleteOne(
     { _id: new ObjectId(req.params.id) },
@@ -105,5 +106,11 @@ app.get('/', (req, res) => {
   const readmeContent = fs.readFileSync(readmePath, 'utf8');
   res.send(marked(readmeContent));
 });
+
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).json({ error: 'Internal Server Error' });
+});
+
 // Start the server
 app.listen(3000, () => console.log('Server listening on port 3000'));
