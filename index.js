@@ -22,7 +22,6 @@ const uri =
   '@cluster0.fpm5lhj.mongodb.net/' +
   dbName +
   '';
-console.log(uri);
 
 // Create a new MongoClient
 const client = new MongoClient(uri, {
