@@ -43,6 +43,12 @@ The app uses Docker Compose to manage the containers. The configuration for the 
 
 If you would like to contribute to this project, please fork the repository and submit a pull request.
 
+1. Fork the repository to your own GitHub account.
+2. Clone the forked repository to your local machine.
+3. Make your changes and test them locally.
+4. Push your changes to your forked repository.
+   Submit a pull request from your forked repository to this repository.
+
 ## License
 
 This app is licensed under the MIT License.
